@@ -3,11 +3,13 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 import requests
 import os
 
+# Environment variables
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 OWNER_ID = int(os.getenv("OWNER_ID"))
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 USER_DATA_FILE = "users.txt"
 
+# Save new user ID to a file
 def save_user(user_id):
     try:
         with open(USER_DATA_FILE, "a+") as f:
@@ -18,6 +20,7 @@ def save_user(user_id):
     except:
         pass
 
+# Generate a chatbot reply using OpenRouter API
 def ai_anime_reply(prompt: str) -> str:
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
@@ -48,6 +51,7 @@ def ai_anime_reply(prompt: str) -> str:
     except Exception:
         return "Oopsie~ I can't think right now. Please try again later!"
 
+# Check if user is admin or the owner
 async def is_admin_or_owner(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if user_id == OWNER_ID:
@@ -58,6 +62,7 @@ async def is_admin_or_owner(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         return False
 
+# /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_user(update.effective_user.id)
     if await is_admin_or_owner(update, context):
@@ -65,6 +70,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Hi there! I'm your cute anime-style chatbot. Let's talk about anything~")
 
+# /broadcast command (owner only)
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != OWNER_ID:
         await update.message.reply_text("Only Dev can use this command.")
@@ -91,17 +97,20 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(f"Broadcast done!\n✅ Sent: {sent}\n❌ Failed: {failed}")
 
+# /admin command
 async def admin_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if await is_admin_or_owner(update, context):
         await update.message.reply_text("Command allowed! Admin powers accepted.")
     else:
         await update.message.reply_text("Only Dev or group admins can use this command.")
 
+# Handle regular text messages
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     message = update.message.text
     save_user(user_id)
 
+# Forward messages to the owner
     if user_id != OWNER_ID:
         try:
             await context.bot.forward_message(chat_id=OWNER_ID, from_chat_id=update.message.chat_id, message_id=update.message.message_id)
@@ -111,6 +120,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply = ai_anime_reply(message)
     await update.message.reply_text(reply)
 
+# Main entry point
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
@@ -120,4 +130,6 @@ def main():
     print("🤖 Bot started!")
     app.run_polling()
 
-if name == "main":  # Error yaha tha
+# Correct entry point check
+if name == "main":
+    main()
