@@ -132,4 +132,5 @@ def main():
 
 # Correct entry point check
 if __name__ == "__main__":
+    main()
     
