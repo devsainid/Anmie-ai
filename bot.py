@@ -120,5 +120,4 @@ def main():
     print("🤖 Bot started!")
     app.run_polling()
 
-if __name__ == "__main__":
-    main()
+if name == "main":  # Error yaha tha
