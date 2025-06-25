@@ -131,5 +131,5 @@ def main():
     app.run_polling()
 
 # Correct entry point check
-if name == "main":
-    main()
+if __name__ == "__main__":
+    
